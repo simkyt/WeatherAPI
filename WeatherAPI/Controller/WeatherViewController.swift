@@ -7,6 +7,7 @@
 
 import UIKit
 import Alamofire
+import SDWebImage
 
 class WeatherViewController: UIViewController {
 
@@ -60,7 +61,22 @@ class WeatherViewController: UIViewController {
             case .success(let value):
                 do{
                     self.currentWeather = value
-                    self.weatherView.updateUI(withData: self.currentWeather!)
+                    if let urlString = self.currentWeather?.current.condition?.icon, var urlComponents = URLComponents(string: urlString) {
+                        if urlComponents.scheme == nil {
+                            urlComponents.scheme = "https"
+                        }
+                        if let url = urlComponents.url {
+                            SDWebImageManager.shared.loadImage(with: url, options: [], progress: nil) { [weak self] (image, data, error, cacheType, finished, imageURL) in
+                                DispatchQueue.main.async {
+                                    if let image = image {
+                                        self?.weatherView.updateUI(withData: value, image: image)
+                                    } else {
+                                        self?.weatherView.updateUI(withData: value, image: UIImage(named: "notfound.jpg")!)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 catch{
                     print("error::::",error)

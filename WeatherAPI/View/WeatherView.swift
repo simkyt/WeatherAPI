@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SDWebImage
 
 extension WeatherView: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -92,11 +91,11 @@ class WeatherView: UIView {
         ])
     }
     
-    func updateUI(withData: CurrentWeather) {
+    func updateUI(withData: CurrentWeather, image: UIImage) {
         UIView.animate(withDuration: 0.7, animations: {
             self.cityLabel.transform = CGAffineTransform(translationX: self.bounds.width, y: 0)
         }, completion: { _ in
-            self.updateContent(withData: withData)
+            self.updateContent(withData: withData, image: image)
 
             self.cityLabel.transform = CGAffineTransform(translationX: -self.bounds.width, y: 0)
 
@@ -127,25 +126,10 @@ class WeatherView: UIView {
     }
 
     
-    func updateContent(withData: CurrentWeather) {
+    func updateContent(withData: CurrentWeather, image: UIImage) {
         cityLabel.text = withData.location.name
         tempLabel.text = String(format: "%0.f°", withData.current.tempC ?? "Not found")
         conditionLabel.text = withData.current.condition?.text
-        if let urlString = withData.current.condition?.icon, var urlComponents = URLComponents(string: urlString) {
-            if urlComponents.scheme == nil {
-                urlComponents.scheme = "https"
-            }
-            if let url = urlComponents.url {
-                SDWebImageManager.shared.loadImage(with: url, options: [], progress: nil) { [weak self] (image, data, error, cacheType, finished, imageURL) in
-                    DispatchQueue.main.async {
-                        if let image = image {
-                            self?.conditionImage.image = image
-                        } else {
-                            self?.conditionImage.image = UIImage(named: "notfound.jpg")
-                        }
-                    }
-                }
-            }
-        }
+        conditionImage.image = image
     }
 }
