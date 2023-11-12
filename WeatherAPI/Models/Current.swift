@@ -8,7 +8,7 @@ struct Current: Codable {
     var tempC            : Double?
     //  var tempF            : Double?
     //  var isDay            : Int?
-    //  var condition        : Condition?
+    var condition        : Condition?
     //  var windMph          : Double?
     //  var windKph          : Double?
     //  var windDegree       : Int?
@@ -34,7 +34,7 @@ struct Current: Codable {
         case tempC            = "temp_c"
         //    case tempF            = "temp_f"
         //    case isDay            = "is_day"
-        //    case condition        = "condition"
+        case condition        = "condition"
         //    case windMph          = "wind_mph"
         //    case windKph          = "wind_kph"
         //    case windDegree       = "wind_degree"
