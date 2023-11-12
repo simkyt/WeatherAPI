@@ -98,7 +98,7 @@
 			children = (
 				1EDE18F32B015C960085D5DC /* WeatherView.swift */,
 			);
-			name = View;
+			path = View;
 			sourceTree = "<group>";
 		};
 		6DA3BF0C2AFE7E6600DD48B1 /* Models */ = {
