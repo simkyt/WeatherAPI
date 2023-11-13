@@ -26,6 +26,24 @@ class WeatherView: UIView {
     let conditionStackView = UIStackView()
     let cityTextField = UITextField()
     
+    let forecastOneLabel = UILabel()
+    let forecastTwoLabel = UILabel()
+    let forecastThreeLabel = UILabel()
+    let forecastFourLabel = UILabel()
+    let forecastFiveLabel = UILabel()
+    let forecastSixLabel = UILabel()
+    
+    let forecastCOneLabel = UILabel()
+    let forecastCTwoLabel = UILabel()
+    let forecastCThreeLabel = UILabel()
+    let forecastCFourLabel = UILabel()
+    let forecastCFiveLabel = UILabel()
+    let forecastCSixLabel = UILabel()
+    
+    let hourforecastStackView = UIStackView()
+    let conditionForecastStackView = UIStackView()
+    let forecastParentStackView = UIStackView()
+    
     var onCityNameChanged: ((String) -> Void)?
     
     override init(frame: CGRect) {
@@ -65,10 +83,42 @@ class WeatherView: UIView {
         conditionStackView.addArrangedSubview(conditionLabel)
         conditionStackView.addArrangedSubview(conditionImage)
         
+        hourforecastStackView.axis = .horizontal
+        hourforecastStackView.alignment = .fill
+        hourforecastStackView.distribution = .fillEqually
+        hourforecastStackView.spacing = 10
+        hourforecastStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        [forecastOneLabel, forecastTwoLabel, forecastThreeLabel, forecastFourLabel, forecastFiveLabel, forecastSixLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            hourforecastStackView.addArrangedSubview($0)
+        }
+        
+        conditionForecastStackView.axis = .horizontal
+        conditionForecastStackView.alignment = .fill
+        conditionForecastStackView.distribution = .fillEqually
+        conditionForecastStackView.spacing = 10
+        conditionForecastStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        [forecastCOneLabel, forecastCTwoLabel, forecastCThreeLabel, forecastCFourLabel, forecastCFiveLabel, forecastCSixLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            conditionForecastStackView.addArrangedSubview($0)
+        }
+        
+        forecastParentStackView.axis = .vertical
+        forecastParentStackView.alignment = .fill
+        forecastParentStackView.distribution = .fillEqually
+        forecastParentStackView.spacing = 10
+        forecastParentStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        forecastParentStackView.addArrangedSubview(hourforecastStackView)
+        forecastParentStackView.addArrangedSubview(conditionForecastStackView)
+        
         addSubview(cityLabel)
         addSubview(tempLabel)
         addSubview(cityTextField)
         addSubview(conditionStackView)
+        addSubview(forecastParentStackView)
         
         NSLayoutConstraint.activate([
             cityTextField.topAnchor.constraint(equalTo: topAnchor, constant: 20),
@@ -88,6 +138,11 @@ class WeatherView: UIView {
             
             conditionImage.widthAnchor.constraint(equalToConstant: 30),
             conditionImage.heightAnchor.constraint(equalToConstant: 30),
+            
+            forecastParentStackView.topAnchor.constraint(equalTo: conditionStackView.bottomAnchor, constant: 30),
+            forecastParentStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            forecastParentStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            forecastParentStackView.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -96,7 +151,6 @@ class WeatherView: UIView {
             self.cityLabel.transform = CGAffineTransform(translationX: self.bounds.width, y: 0)
         }, completion: { _ in
             self.updateContent(withData: withData, image: image)
-
             self.cityLabel.transform = CGAffineTransform(translationX: -self.bounds.width, y: 0)
 
             UIView.animate(withDuration: 0.7) {
@@ -114,7 +168,7 @@ class WeatherView: UIView {
             }
         })
 
-        UIView.animate(withDuration: 0.7, delay: 0.2, options: [], animations: {
+        UIView.animate(withDuration: 0.7, delay: 0.05, options: [], animations: {
             self.conditionStackView.transform = CGAffineTransform(translationX: self.bounds.width, y: 0)
         }, completion: { _ in
             self.conditionStackView.transform = CGAffineTransform(translationX: -self.bounds.width, y: 0)
@@ -131,5 +185,45 @@ class WeatherView: UIView {
         tempLabel.text = String(format: "%0.f°", withData.current.tempC ?? "Not found")
         conditionLabel.text = withData.current.condition?.text
         conditionImage.image = image
+    }
+    
+    func updateHourlyForecast(hourIndex: Int, hourString: String, tempC: Double?) {
+        let formattedTemp = String(format: "%0.f°", tempC ?? "Not found")
+
+        switch hourIndex {
+        case 0:
+            animateLabelUpdate(label: forecastOneLabel, newText: "Now", delayDuration: 0.05)
+            animateLabelUpdate(label: forecastCOneLabel, newText: formattedTemp, delayDuration: 0.05)
+        case 1:
+            animateLabelUpdate(label: forecastTwoLabel, newText: hourString, delayDuration: 0.05)
+            animateLabelUpdate(label: forecastCTwoLabel, newText: formattedTemp, delayDuration: 0.05)
+        case 2:
+            animateLabelUpdate(label: forecastThreeLabel, newText: hourString, delayDuration: 0.05)
+            animateLabelUpdate(label: forecastCThreeLabel, newText: formattedTemp, delayDuration: 0.05)
+        case 3:
+            animateLabelUpdate(label: forecastFourLabel, newText: hourString, delayDuration: 0.05)
+            animateLabelUpdate(label: forecastCFourLabel, newText: formattedTemp, delayDuration: 0.05)
+        case 4:
+            animateLabelUpdate(label: forecastFiveLabel, newText: hourString, delayDuration: 0.05)
+            animateLabelUpdate(label: forecastCFiveLabel, newText: formattedTemp, delayDuration: 0.05)
+        case 5:
+            animateLabelUpdate(label: forecastSixLabel, newText: hourString, delayDuration: 0.05)
+            animateLabelUpdate(label: forecastCSixLabel, newText: formattedTemp, delayDuration: 0.05)
+        default:
+            break
+        }
+    }
+    
+    func animateLabelUpdate(label: UILabel, newText: String, delayDuration: Double) {
+        UIView.animate(withDuration: 0.7, delay: delayDuration, animations: {
+            label.transform = CGAffineTransform(translationX: self.bounds.width, y: 0)
+        }, completion: { _ in
+            label.text = newText
+            label.transform = CGAffineTransform(translationX: -self.bounds.width, y: 0)
+
+            UIView.animate(withDuration: 0.7) {
+                label.transform = CGAffineTransform.identity
+            }
+        })
     }
 }

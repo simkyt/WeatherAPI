@@ -10,4 +10,5 @@ import Foundation
 struct CurrentWeather:Codable{
     let location:Location
     let current:Current
+    let forecast:Forecast
 }

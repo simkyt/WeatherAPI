@@ -13,7 +13,7 @@ class WeatherViewController: UIViewController {
 
     let apiKey:String = "e863aae720msh0e35c0ad135e211p183baejsnadedcffb2f2a"
     let apiHost:String = "weatherapi-com.p.rapidapi.com"
-    let apiUrl:String = "https://weatherapi-com.p.rapidapi.com/current.json"
+    let apiUrl:String = "https://weatherapi-com.p.rapidapi.com/forecast.json"
     let city: String = "Riga"
     
     var currentWeather:CurrentWeather?
@@ -73,6 +73,7 @@ class WeatherViewController: UIViewController {
                                     } else {
                                         self?.weatherView.updateUI(withData: value, image: UIImage(named: "notfound.jpg")!)
                                     }
+                                    self?.updateHourlyForecast()
                                 }
                             }
                         }
@@ -99,6 +100,28 @@ class WeatherViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
+    
+    func updateHourlyForecast() {
+        guard let forecastDay = currentWeather?.forecast.forecastday?.first, let hours = forecastDay.hour else { return }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH"
+        let currentHourString = dateFormatter.string(from: Date())
+
+        guard let currentHour = Int(currentHourString) else { return }
+
+        for i in 0..<6 {
+            let targetHour = (currentHour + i) % 24
+            if targetHour < hours.count {
+                let hourData = hours[targetHour]
+                let timeString = hourData.time?.split(separator: " ")[1] ?? ""
+                let hourString = String(timeString.split(separator: ":")[0])
+                weatherView.updateHourlyForecast(hourIndex: i, hourString: hourString, tempC: hourData.tempC)
+            }
+        }
+    }
+
+
 }
     
 
