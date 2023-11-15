@@ -8,13 +8,16 @@
 import UIKit
 import Alamofire
 import SDWebImage
+import CoreLocation
 
-class WeatherViewController: UIViewController {
+class WeatherViewController: UIViewController, CLLocationManagerDelegate {
 
     let apiKey:String = "e863aae720msh0e35c0ad135e211p183baejsnadedcffb2f2a"
     let apiHost:String = "weatherapi-com.p.rapidapi.com"
     let apiUrl:String = "https://weatherapi-com.p.rapidapi.com/forecast.json"
-    let city: String = "Riga"
+    var city: String = ""
+    
+    let locationManager = CLLocationManager()
     
     var currentWeather:CurrentWeather?
     private let weatherView = WeatherView()
@@ -22,10 +25,36 @@ class WeatherViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        loadWeatherData(for: city)
+        
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.delegate = self
+        locationManager.startUpdatingLocation()
+        
         weatherView.onCityNameChanged = { [weak self] newCity in
-            self?.updateCityName(newCity)
+            self?.loadWeatherData(for: newCity)
         }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.first {
+            let geocoder = CLGeocoder()
+            geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+                if error == nil {
+                    if let firstLocation = placemarks?[0],
+                       let city = firstLocation.locality {
+                        self.city = city
+                        self.loadWeatherData(for: city)
+                    }
+                } else {
+                    print("error:::: \(error?.localizedDescription ?? "unknown error")")
+                }
+            }
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Failed to find user's location: \(error.localizedDescription)")
     }
     
     func setupView() {
@@ -91,10 +120,6 @@ class WeatherViewController: UIViewController {
         }
     }
     
-    func updateCityName(_ newCity: String) {
-        loadWeatherData(for: newCity)
-    }
-    
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
@@ -116,7 +141,11 @@ class WeatherViewController: UIViewController {
                 let hourData = hours[targetHour]
                 let timeString = hourData.time?.split(separator: " ")[1] ?? ""
                 let hourString = String(timeString.split(separator: ":")[0])
-                weatherView.updateHourlyForecast(hourIndex: i, hourString: hourString, tempC: hourData.tempC)
+                if i == 0 {
+                    weatherView.updateHourlyForecast(hourIndex: i, hourString: "Now", tempC: currentWeather?.current.tempC)
+                } else {
+                    weatherView.updateHourlyForecast(hourIndex: i, hourString: hourString, tempC: hourData.tempC)
+                }
             }
         }
     }

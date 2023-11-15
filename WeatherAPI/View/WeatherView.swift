@@ -11,6 +11,7 @@ extension WeatherView: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         if let newCity = textField.text, !newCity.isEmpty {
+            // check if it's the same city
             onCityNameChanged?(newCity)
             cityTextField.text = ""
         }
@@ -40,6 +41,9 @@ class WeatherView: UIView {
     let forecastCFiveLabel = UILabel()
     let forecastCSixLabel = UILabel()
     
+    private lazy var hourLabels = [forecastOneLabel, forecastTwoLabel, forecastThreeLabel, forecastFourLabel, forecastFiveLabel, forecastSixLabel]
+    private lazy var tempLabels = [forecastCOneLabel, forecastCTwoLabel, forecastCThreeLabel, forecastCFourLabel, forecastCFiveLabel, forecastCSixLabel]
+
     let hourforecastStackView = UIStackView()
     let conditionForecastStackView = UIStackView()
     let forecastParentStackView = UIStackView()
@@ -188,30 +192,10 @@ class WeatherView: UIView {
     }
     
     func updateHourlyForecast(hourIndex: Int, hourString: String, tempC: Double?) {
-        let formattedTemp = String(format: "%0.f°", tempC ?? "Not found")
-
-        switch hourIndex {
-        case 0:
-            animateLabelUpdate(label: forecastOneLabel, newText: "Now", delayDuration: 0.05)
-            animateLabelUpdate(label: forecastCOneLabel, newText: formattedTemp, delayDuration: 0.05)
-        case 1:
-            animateLabelUpdate(label: forecastTwoLabel, newText: hourString, delayDuration: 0.05)
-            animateLabelUpdate(label: forecastCTwoLabel, newText: formattedTemp, delayDuration: 0.05)
-        case 2:
-            animateLabelUpdate(label: forecastThreeLabel, newText: hourString, delayDuration: 0.05)
-            animateLabelUpdate(label: forecastCThreeLabel, newText: formattedTemp, delayDuration: 0.05)
-        case 3:
-            animateLabelUpdate(label: forecastFourLabel, newText: hourString, delayDuration: 0.05)
-            animateLabelUpdate(label: forecastCFourLabel, newText: formattedTemp, delayDuration: 0.05)
-        case 4:
-            animateLabelUpdate(label: forecastFiveLabel, newText: hourString, delayDuration: 0.05)
-            animateLabelUpdate(label: forecastCFiveLabel, newText: formattedTemp, delayDuration: 0.05)
-        case 5:
-            animateLabelUpdate(label: forecastSixLabel, newText: hourString, delayDuration: 0.05)
-            animateLabelUpdate(label: forecastCSixLabel, newText: formattedTemp, delayDuration: 0.05)
-        default:
-            break
-        }
+        let formattedTemp = String(format: "%0.f°", tempC ?? 0)
+        
+        animateLabelUpdate(label: hourLabels[hourIndex], newText: hourString, delayDuration: 0.05)
+        animateLabelUpdate(label: tempLabels[hourIndex], newText: formattedTemp, delayDuration: 0.05)
     }
     
     func animateLabelUpdate(label: UILabel, newText: String, delayDuration: Double) {
