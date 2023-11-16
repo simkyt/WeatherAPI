@@ -43,8 +43,11 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
                 if error == nil {
                     if let firstLocation = placemarks?[0],
                        let city = firstLocation.locality {
+                        print(city)
                         self.city = city
                         self.loadWeatherData(for: city)
+                    } else {
+                        self.showAlert(title: "Error", message: "City was not found or there was an error fetching the weather data.")
                     }
                 } else {
                     print("error:::: \(error?.localizedDescription ?? "unknown error")")
@@ -54,7 +57,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Failed to find user's location: \(error.localizedDescription)")
+        print("error:::: \(error.localizedDescription)")
     }
     
     func setupView() {
